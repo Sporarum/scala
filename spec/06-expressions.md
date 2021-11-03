@@ -472,21 +472,14 @@ Type applications can be omitted if
 for a polymorphic method from the types of the actual method arguments
 and the expected result type.
 
-Remember that functions can have multiple lists of type arguments, and/or 
-return a value with a higher kinded type, as a simple example, 
-take the two following declarations, where ´Z´ is an arbitrary type, 
+In the case of a function with multiple lists of type arguments, and/or 
+which returns a value with a higher kinded type, the applied types are the leftmost
+ones, while the rightmost ones are inferred.
+
+###### example
+Where ´Z´ is an arbitrary type, 
 potentially containing references to ´T´ and ´U´:
 
-```scala
-def foo[T][U]: Z
-def bar[T]: [U] -> Z
-```
-
-At application, we can then homit either ´T´ and ´U´ or neither, 
-or we can homit ´U´ but not ´T´. 
-But if a parameter for ´U´ is passed, then one must be as well for ´T´, 
-even if the value passed make sense for ´U´ but not for ´T´, 
-as in the following example:
 ```scala
 def foo[T <: Int][U <: String]: Z
 
@@ -496,10 +489,12 @@ foo // valid*
 
 foo[String] // invalid!
 
-// * if remaining values can be implied
+// * if remaining types can be inferred
 ```
+<!-- TODO: Shelve this ? -->
 If there is need to be able to specify any combination, 
-use an empty term clause like this:
+an empty term clause can be used:
+
 ```scala
 def foo[T <: Int]()[U <: String]: Z
 
@@ -512,10 +507,11 @@ foo()[String] // valid*
 //but of course:
 foo[Int][String] // invalid: expected 1 type clause, but got 2
 
-// * if remaining values can be implied
+// * if remaining types can be inferred
 ```
-In most cases this should not be needed, and might hint at your 
-implementation separating too much type clauses from the term clauses
+
+In most cases this should not be needed, and might hint at 
+type clauses being separated too much from the term clauses
 that reference those types.
 
 ## Tuples
@@ -1820,7 +1816,7 @@ a = scala.Any
 so `scala.Any` is the type inferred for `a`.
 
 ### <a name="eta-expansion-section">Eta Expansion</a>
-
+<!-- TODO: Update with type lambdas for Polymorphic methods -->
 _Eta-expansion_ converts an expression of method type to an
 equivalent expression of function type. It proceeds in two steps.
 

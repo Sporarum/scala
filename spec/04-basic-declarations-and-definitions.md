@@ -626,17 +626,18 @@ A _value parameter clause_ ´\mathit{ps}´ consists of zero or more formal
 parameter bindings such as `´x´: ´T´` or `´x: T = e´`, which bind value
 parameters and associate them with their types.
 
-<!-- TODO: check following: -->
 Note that parameter names have to be unique not only inside clauses but between them too.
 Note that parameters inside type and term clauses are allowed to depend on 
-parameters of the previous ones, the following example is valid:
+parameters of the previous ones.
+
+###### Example
 ```scala
-def foo[T](x: T)[U :> x.type <: T][L <: List[U]](l: L) // valid
-def bar[T](x: T)[T] // invalid: T appears twice
-def zoo(x: Int)[T, U](x: U) // invalid: x appears twice
-def aaa(T <: U)(x: U)[U] //invalid: U appears after being used
+def foo[T](x: T)[U >: x.type <: T][L <: List[U]](l: L): L // valid
+def bar[T](x: T)[T]: String // invalid: T appears twice
+def zoo(x: Int)[T, U](x: U): T // invalid: x appears twice
+def aaa(x: U): U // valid if U is in scope
+def bbb[T <: U](x: U)[U]: U //valid if U is in scope, same as aaa
 ```
-<!-- TODO: in the case of the last example, should it be valid if a definition for U is in scope ? -->
 
 ### Default Arguments
 

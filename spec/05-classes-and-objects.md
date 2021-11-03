@@ -151,6 +151,7 @@ def delayedInit(body: => Unit): Unit
 ```ebnf
 Constr  ::=  AnnotType {‘(’ [Exprs] ‘)’}
 ```
+<!-- TODO: if add constructor with interweaving, change this -->
 
 Constructor invocations define the type, members, and initial state of
 objects created by an instance creation expression, or of parts of an
@@ -690,7 +691,7 @@ ClassParam        ::=  {Annotation} {Modifier} [(‘val’ | ‘var’)]
                        id [‘:’ ParamType] [‘=’ Expr]
 ClassTemplateOpt  ::=  ‘extends’ ClassTemplate | [[‘extends’] TemplateBody]
 ```
-
+<!-- TODO: if update class params, change here-->
 The most general form of class definition is
 
 ```scala

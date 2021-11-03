@@ -190,6 +190,7 @@ with a type member `Node` and the standard class `scala.Int`,
 SimpleType      ::=  SimpleType TypeArgs
 TypeArgs        ::=  ‘[’ Types ‘]’
 ```
+<!-- TODO: if currying is added for Parametrised types, change here -->
 
 A _parameterized type_ ´T[ T_1 , \ldots , T_n ]´ consists of a type
 designator ´T´ and type parameters ´T_1 , \ldots , T_n´ where
@@ -587,6 +588,7 @@ do they appear explicitly in programs. They are introduced in this
 report as the internal types of defined identifiers.
 
 ### Method Types
+<!-- TODO: Update with new internal representation for interweaving -->
 
 A _method type_ is denoted internally as ´(\mathit{Ps})U´, where ´(\mathit{Ps})´
 is a sequence of parameter names and types ´(p_1:T_1 , \ldots , p_n:T_n)´
@@ -626,6 +628,7 @@ c: (Int) (String, String) String
 ```
 
 ### Polymorphic Method Types
+<!-- TODO: Update with new internal representation for interweaving -->
 
 A polymorphic method type is denoted internally as `[´\mathit{tps}\,´]´T´` where
 `[´\mathit{tps}\,´]` is a type parameter section

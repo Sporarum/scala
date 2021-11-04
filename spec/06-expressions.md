@@ -1816,7 +1816,7 @@ a = scala.Any
 so `scala.Any` is the type inferred for `a`.
 
 ### <a name="eta-expansion-section">Eta Expansion</a>
-<!-- TODO: Update with type lambdas for Polymorphic methods -->
+
 _Eta-expansion_ converts an expression of method type to an
 equivalent expression of function type. It proceeds in two steps.
 
@@ -1839,6 +1839,29 @@ n´). The result of eta-conversion is then:
 The behavior of [call-by-name parameters](#function-applications)
 is preserved under eta-expansion: the corresponding actual argument expression,
 a sub-expression of parameterless method type, is not evaluated in the expanded block.
+
+In the case of a polymorphic method, the type arguments are set 
+according to the expected type, if they are not constrained, they are replaced by their upper bound,
+even in cases where the expected type is polymorphic, leading to a typing error.
+(This might however change in future versions of scala 3)
+
+###### Examples
+
+```scala
+def id[T](x: T) = x // method type [T](T)T
+
+val valId1 /*Any => Any*/ = id
+val valId2:  Int => Int   = id
+val valId3: [T] => T => T = id // error: Found: Any => Any, Required: [T] => T => T
+
+def requestInt2Int(f: Int => Int) = ???
+
+requestInt2Int(id)
+requestInt2Int(valId1) // error: Found: Any => Any, Required: Int => Int
+requestInt2Int(valId2)
+requestInt2Int(valId3) // error: Found: [T] => T => T, Required: Int => Int // Why doesn't infer ?
+requestInt2Int(valId3[Int])
+```
 
 ### Dynamic Member Selection
 

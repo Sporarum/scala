@@ -473,7 +473,7 @@ for a polymorphic method from the types of the actual method arguments
 and the expected result type.
 
 In the case of a function with multiple lists of type arguments, and/or 
-which returns a value with a higher kinded type, the applied types are the leftmost
+which returns a value with a polymorphic function type, the applied types are the leftmost
 ones, while the rightmost ones are inferred.
 
 ###### example

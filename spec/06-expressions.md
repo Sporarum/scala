@@ -1775,8 +1775,10 @@ so `scala.Any` is the type inferred for `a`.
 
 ### <a name="eta-expansion-section">Eta Expansion</a>
 
-_Eta-expansion_ converts an expression of method type to an
-equivalent expression of function type. It proceeds in two steps.
+_Eta-expansion_ converts an expression of (potentially polymorphic) method
+type to an equivalent expression of (potentially polymorphic) function type. 
+
+If the method is not polymorphic, it proceeds in two steps:
 
 First, one identifies the maximal sub-expressions of ´e´; let's
 say these are ´e_1 , \ldots , e_m´. For each of these, one creates a
@@ -1784,7 +1786,7 @@ fresh name ´x_i´. Let ´e'´ be the expression resulting from
 replacing every maximal subexpression ´e_i´ in ´e´ by the
 corresponding fresh name ´x_i´. Second, one creates a fresh name ´y_i´
 for every argument type ´T_i´ of the method (´i = 1 , \ldots ,
-n´). The result of eta-conversion is then:
+n´). The result of eta-expansion is then:
 
 ```scala
 { val ´x_1´ = ´e_1´;
@@ -1792,6 +1794,42 @@ n´). The result of eta-conversion is then:
   val ´x_m´ = ´e_m´;
   (´y_1: T_1 , \ldots , y_n: T_n´) => ´e'´(´y_1 , \ldots , y_n´)
 }
+```
+
+If the method is polymorphic, it proceeds as follows:
+
+If the expected type is also polymorphic and the type clauses are compatible,
+a polymorphic function is created, taking fresh type arguments, and apllying 
+them to the method. The bounds are those of the expected type if present 
+(compatibility ensures they are strict enough). If there is no expected type,
+the bounds are the method's bounds. The result of eta-expansion is then:
+
+```scala
+[´Fresh_1 , \ldots , Fresh_n´] => ´e´[´Fresh_1 , \ldots , Fresh_n´]
+```
+
+Note that the compatibility of the subexpression and the expected 
+subexpression will again be checked, potentially producing more 
+eta-expansions, for example the method `def ident[T](x: T): T` will get 
+eta-expanded to:
+```scala
+[T] => (x: T) => ident[T](x)
+```
+
+
+In the case where the expected type is not polymorphic, or the clauses are 
+incompatible then fresh type variables are inserted, they will either be 
+replaced by a concrete type or throw a typing error, for example with our 
+previous `ident`:
+
+```scala
+val identInt: Int => Int = ident
+```
+
+Will get expanded to:
+
+```scala
+val identInt: Int => Int = (x: Int) => ident[Int](x)
 ```
 
 The behavior of [call-by-name parameters](#function-applications)

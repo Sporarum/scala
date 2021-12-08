@@ -1818,8 +1818,8 @@ eta-expanded to:
 
 
 In the case where the expected type is not polymorphic, or the clauses are 
-incompatible then fresh type variables are inserted, they will either be 
-replaced by a concrete type or throw a typing error, for example with our 
+incompatible, then fresh type variables are inserted. They will either be 
+replaced by a concrete type or throw a typing error. For example with our 
 previous `ident`:
 
 ```scala

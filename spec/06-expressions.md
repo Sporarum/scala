@@ -1805,7 +1805,7 @@ them to the method. The bounds are those of the expected type if present
 the bounds are the method's bounds. The result of eta-expansion is then:
 
 ```scala
-[´Fresh_1 , \ldots , Fresh_n´] => ´e´[´Fresh_1 , \ldots , Fresh_n´]
+[´T_1 <: U_1 >: L_1, \ldots , T_n <: U_n >: L_n´] => ´e´[´T_1 , \ldots , T_n´]
 ```
 
 Note that the compatibility of the subexpression and the expected 

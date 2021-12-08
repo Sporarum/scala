@@ -472,6 +472,48 @@ Type applications can be omitted if
 for a polymorphic method from the types of the actual method arguments
 and the expected result type.
 
+In the case of a function with multiple lists of type arguments, and/or 
+which returns a value with a polymorphic function type, the applied types are the leftmost
+ones, while the rightmost ones are inferred.
+
+###### example
+Where ´Z´ is an arbitrary type, 
+potentially containing references to ´T´ and ´U´:
+
+```scala
+def foo[T <: Int][U <: String]: Z
+
+foo[Int][String] // valid
+foo[Int] // valid* 
+foo // valid*
+
+foo[String] // invalid!
+
+// * if remaining types can be inferred
+```
+<!-- TODO: Shelve this ? -->
+If there is need to be able to specify any combination, 
+an empty term clause can be used:
+
+```scala
+def foo[T <: Int]()[U <: String]: Z
+
+foo[Int]()[String] // valid
+foo[Int]() // valid* 
+foo() // valid*
+
+foo()[String] // valid*
+
+//but of course:
+foo[Int][String] // invalid: expected 1 type clause, but got 2
+
+// * if remaining types can be inferred
+```
+
+In most cases this should not be needed, and might hint at 
+type clauses being separated too much from the term clauses
+that reference those types.
+
 ## Tuples
 
 ```ebnf
@@ -1797,6 +1839,29 @@ n´). The result of eta-conversion is then:
 The behavior of [call-by-name parameters](#function-applications)
 is preserved under eta-expansion: the corresponding actual argument expression,
 a sub-expression of parameterless method type, is not evaluated in the expanded block.
+
+In the case of a polymorphic method, the type arguments are set 
+according to the expected type, if they are not constrained, they are replaced by their upper bound,
+even in cases where the expected type is polymorphic, leading to a typing error.
+(This might however change in future versions of scala 3)
+
+###### Examples
+
+```scala
+def id[T](x: T) = x // method type [T](T)T
+
+val valId1 /*Any => Any*/ = id
+val valId2:  Int => Int   = id
+val valId3: [T] => T => T = id // error: Found: Any => Any, Required: [T] => T => T
+
+def requestInt2Int(f: Int => Int) = ???
+
+requestInt2Int(id)
+requestInt2Int(valId1) // error: Found: Any => Any, Required: Int => Int
+requestInt2Int(valId2)
+requestInt2Int(valId3) // error: Found: [T] => T => T, Required: Int => Int // Why doesn't infer ?
+requestInt2Int(valId3[Int])
+```
 
 ### Dynamic Member Selection
 

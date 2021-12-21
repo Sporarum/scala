@@ -1778,7 +1778,14 @@ so `scala.Any` is the type inferred for `a`.
 _Eta-expansion_ converts an expression of (potentially polymorphic) method
 type to an equivalent expression of (potentially polymorphic) function type. 
 
-If the method is not polymorphic, it proceeds in two steps:
+The behavior of [call-by-name parameters](#function-applications)
+is preserved under eta-expansion: the corresponding actual argument expression,
+a sub-expression of parameterless method type, is not evaluated in the expanded block.
+
+The following are the three distinct cases of eta-expansion:
+
+
+#### Non-polymorphic method
 
 First, one identifies the maximal sub-expressions of ´e´; let's
 say these are ´e_1 , \ldots , e_m´. For each of these, one creates a
@@ -1796,29 +1803,30 @@ n´). The result of eta-expansion is then:
 }
 ```
 
-If the method is polymorphic, it proceeds as follows:
+#### Polymorphic method & compatible polymorphic function
 
-If the expected type is also polymorphic and the type clauses are compatible,
-a polymorphic function is created, taking fresh type arguments, and apllying 
-them to the method. The bounds are those of the expected type if present 
-(compatibility ensures they are strict enough). If there is no expected type,
-the bounds are the method's bounds. The result of eta-expansion is then:
+Let ´e´ be a method `´m´` taking `[´T_1 <: U_1 >: L_1, \ldots , T_n <: U_n >: L_n´]`
+as argument,
+if the expected type is `[´T'_1 <: U'_1 >: L'_1, \ldots , T'_n <: U'_n >: L'_n´] => ´T'_{ret}´`, 
+and each `´T'_x´` [conforms](03-types.html#conformance) to `´T_x´`,
+or if there's no expected type; `´T'_x´ := ´T_x´`, then the result of eta-expansion is:
 
 ```scala
-[´T_1 <: U_1 >: L_1, \ldots , T_n <: U_n >: L_n´] => ´e´[´T_1 , \ldots , T_n´]
+[´T'_1 <: U'_1 >: L'_1, \ldots , T'_n <: U'_n >: L'_n´] => ´m´[´T'_1, \ldots , T'_n´]
 ```
 
-Note that the compatibility of the subexpression and the expected 
-subexpression will again be checked, potentially producing more 
+Note that the [compatibility](03-types.html#compatibility) of the type of `´m´[´T'_1, \ldots , T'_n´]`
+ and `´T'_{ret}´` will again be checked, potentially producing more 
 eta-expansions, for example the method `def ident[T](x: T): T` will get 
 eta-expanded to:
 ```scala
 [T] => (x: T) => ident[T](x)
 ```
 
+#### Remaining cases
 
-In the case where the expected type is not polymorphic, or the clauses are 
-incompatible, then fresh type variables are inserted. They will either be 
+In the case where the expected type is not polymorphic, or the type parameter
+don't conform, then fresh type variables are applied. They will either be 
 replaced by a concrete type or throw a typing error. For example with our 
 previous `ident`:
 
@@ -1831,10 +1839,6 @@ Will get expanded to:
 ```scala
 val identInt: Int => Int = (x: Int) => ident[Int](x)
 ```
-
-The behavior of [call-by-name parameters](#function-applications)
-is preserved under eta-expansion: the corresponding actual argument expression,
-a sub-expression of parameterless method type, is not evaluated in the expanded block.
 
 ### Dynamic Member Selection
 
